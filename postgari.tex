@@ -7,10 +7,10 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{amsmath}
-\usepackage[absolute, showboxes, overlay]{textpos}
-%\usepackage[absolute, overlay]{textpos}
+%\usepackage[absolute, showboxes, overlay]{textpos}
+\usepackage[absolute, overlay]{textpos}
 \usepackage{calc}
-\usepackage[colorgrid,texcoord]{eso-pic}
+%\usepackage[colorgrid,texcoord]{eso-pic}
 \usepackage[bibstyle=numeric,maxcitenames=6]{biblatex}
 
 % \defaultfontfeatures{Mapping=tex-text}
@@ -65,6 +65,9 @@
   {\colorbox{#1}{\strut\textcolor{white}{$\textstyle{#2}$}}}%
   {\colorbox{#1}{\strut\textcolor{white}{$\scriptstyle{#2}$}}}%
   {\colorbox{#1}{\strut\textcolor{white}{$\scriptscriptstyle{#2}$}}}}%
+
+\newcommand{\highlighttext}[2][yellow]{{\colorbox{#1}{\strut\textcolor{white}{#2}}}}
+
 
 \def\restrict#1{\mkern 1mu \vrule height 1.3ex\mkern2mu #1}
 
@@ -251,8 +254,8 @@
     % \blindtext
         \emph{\textbf{Density estimation}} is the unsupervised task of
     learning an estimator for the joint probability distribution
-    $p(\mathbf{X})$ from a set of i.i.d. samples $\{\mathbf
-    x^i\}_{i=1}^m$ over r.v.s $\mathbf{X}$\\[20pt]
+    $p(\mathbf{X})$ from a set of i.i.d. samples $\mathcal{D}=\{\mathbf
+    x^i\}_{i=1}^m$ over r.v.s $\mathbf{X}=\{X_{1},\dots,X_{n}\}$\\[20pt]
     
     Given such an estimator, one uses it to answers
     probabilistic queries about configurations on $\mathbf{X}$,
@@ -260,9 +263,9 @@
 
     The main challenge in density estimation is balancing:
     \begin{itemize}
-    \item the \textbf{\emph{representation expressiveness}} of a model
-    \item the \textbf{\emph{cost of learning}} it
-      \item and the \textbf{\emph{cost of performing inference}} on it.
+    \item the \highlighttext[lacamlightlilac]{\textbf{\emph{representation expressiveness}}} of a model
+    \item the \highlighttext[lacamlightlilac]{\textbf{\emph{cost of learning}}} it
+      \item and the \highlighttext[lacamlightlilac]{\textbf{\emph{cost of performing inference}}} on it.
     \end{itemize}
     
 
@@ -291,19 +294,28 @@
   
   \begin{textblock}{17.5}(0, 23.4)
     \small
+
+    Classical Probabilistic Graphical Models like \emph{\textbf{Bayesian Networks}}
+    (\textbf{BNs}) and \emph{\textbf{Markov Networks}} (\textbf{MNs}) are highly expressive but
+    exact inference is generally NP-hard~\cite{Roth1996}.
+    \vspace{20pt}
+
+    
     \emph{\textbf{Tractable Probabilistic Models} }  (\textbf{TPMs})
-    are density estimators for which some kind of  \textbf{\emph{exact}} inference is
-    \textbf{\emph{tractable}}, i.e. polynomial in the number of r.v.s or their
-    domains.\\[20pt]
+    on the other hand, are density estimators for which some kind of  \textbf{\emph{exact}} inference is
+    \textbf{\emph{tractable}}, i.e. \emph{polynomial} in the number of RVs or their
+    domains.
+    \hfill$\rightarrow$ Learning them may still be hard to scale.\\[20pt]
 
     
     {\bf 2.1 Product of Bernoullis (PoBs)}
-
+    The least expressive, assuming all RVs to be independent:
     
-    $$\mathsf{p}(\mathbf{x}) =\prod_{i=1}^{n}\mathsf{p}(x_{i})$$
+    $$\highlight[lacamlightlilac]{\mathsf{p}(\mathbf{x}) =\prod\nolimits_{i=1}^{n}\mathsf{p}(x_{i})}$$
 
-    Learning a PoB from $\mathcal{D}$ over RVs $\mathbf{X}$ has linear
-    time complexity $O(nm)$.
+    Learning a PoB has linear time complexity $O(nm)$.\par
+    Inference is linear as well, $O(n)$.
+    \vspace{20pt}
 
     {\bf 2.2 Chow-Liu Trees (CLTrees)}
 
@@ -311,12 +323,11 @@
     $\mathbf{X}$ is a BN in which each node $X_{i}\in\mathbf{X}$ has at most one
     parent, $\mathrm{Pa}_{X_i}$.
 
-    $$\mathsf{p}(\mathbf{x}) =
-    \prod_{i=1}^n\mathsf{p}(x_i|\mathrm{Pa}_{x_i})$$
+    $$\highlight[lacamlightlilac]{\mathsf{p}(\mathbf{x}) =
+    \prod\nolimits_{i=1}^n\mathsf{p}(x_i|\mathrm{Pa}_{x_i})}$$
 
-    Learning a CLtree from $\mathcal{D}$ over RVs $\mathbf{X}$ has
-    quadratic time complexity
-$O(n^2 (m + \log n))$
+    Learning a \textsf{CLtree} takes  quadratic time $O(n^2(m + \log n))$.\par
+    Inference is still linear like \textsf{PoBs}, $O(n)$.
   \end{textblock}
 
   % \begin{textblock}{17.5}(0, 33)
@@ -333,7 +344,7 @@ $O(n^2 (m + \log n))$
   % column 2
   \begin{textblock}{17.5}(20.5, 7)
     \usebeamerfont{section name}
-    2. Cutset Networks (CNets)
+    3. Cutset Networks (CNets)
   \end{textblock}
   
   \begin{textblock}{17.5}(20.5, 8.7)
@@ -358,18 +369,28 @@ $O(n^2 (m + \log n))$
 \end{figure}
 \hspace{50pt}
 \begin{minipage}{0.8\linewidth}
-\scriptsize  Example of a CNet over binary RVs. Inner (rounded) nodes on
-    variables $X_i$ are OR nodes, while leaf (squared) nodes represent CLtrees.
+\scriptsize  A CNet over binary RVs
+$\mathbf{X}=\{X_1,\dots,X_{6}\}$. Or nodes are rounded, while leaf squared nodes represent CLtrees.
 \end{minipage}
 
+\vspace{20pt}
+Therefore, the joint pdf modeled by a CNet $\mathcal{C}$ is:
+\begin{equation}
+\highlight[lacamlightlilac]{\mathsf{p}(\mathbf{x}) = \mathsf{p}_l(\mathbf
+x_{|\mathsf{scope}(\mathcal C)\setminus \mathsf{scope}(\mathcal
+  M_l)})\mathsf{p}_{\mathcal M_l}(\mathbf x_{| \mathsf{scope}(\mathcal
+  M_l)})}\label{eq:cnetdistr}
+\end{equation}
+
+
   \end{textblock}
 
-  \begin{textblock}{17.5}(20.5, 26.5)
+  \begin{textblock}{17.5}(20.5, 29.5)
     \usebeamerfont{section name}
-    2. Learning CNets
+    4. Learning CNets
   \end{textblock}
   
-  \begin{textblock}{17.5}(20.5, 28.2)
+  \begin{textblock}{17.5}(20.5, 31.2)
   % \begin{textblock}{17.5}(20.5, 20)
   %   \usebeamerfont{section name}
   %   2. Learning CNets
@@ -377,7 +398,7 @@ $O(n^2 (m + \log n))$
   % \begin{textblock}{17.5}(20.5, 21.7)
     \small
     
-    All top-down greedy CNet learners~\cite{Rahman2014,DiMauro2015a}
+    All top-down greedy CNet learners %~\cite{Rahman2014,DiMauro2015a}
     can be unified in single template, $\mathsf{LearnCNet}$:
  \begin{center}  
   \begin{minipage}{0.9\linewidth}
@@ -390,24 +411,23 @@ $O(n^2 (m + \log n))$
 %  \caption{\textsf{\textsf{LearnCNet}}($\mathcal{D}$, $\mathbf{X}$, $\alpha$, $\delta$, $\sigma$)}
 %  \label{algo:learn-cnet}
   \begin{algorithmic}[1]
-    \State \textbf{Input:} a dataset $\mathcal{D}$ over RVs $\mathbf{X}$; $\alpha$: Laplace
-    smoothing; $\delta$
+    \State \textbf{Input:} a dataset $\mathcal{D}$ over RVs $\mathbf{X}$; $\alpha$: $\delta$
     min number samples; $\sigma$ min number features
     \State  \textbf{Output:}  a CNet $\mathcal{C}$ encoding  $\mathsf{p}_{\mathcal{C}}(\textbf{X})$ learned from $\mathcal D$
     \If {$|\mathcal D|>\delta$ \textbf{and} $|\mathbf X|>\sigma$}
-    \State $X_i, \mathsf{success} \leftarrow  \mathsf{select}(\mathcal D, \mathbf X, \alpha)$
-    \If {$\mathsf{success}$}
+    \State $\highlight[lacamlightlilac]{X_i\leftarrow  \mathsf{select}(\mathcal D, \mathbf X, \alpha)}$
+    % \If {$\mathsf{success}$}
+    \Comment {select the RV to condition on}
     \State $\mathcal D_0 \leftarrow \{\xi \in \mathcal D: \xi[X_i]=0 \}$, $\mathcal D_1 \leftarrow \{\xi \in \mathcal D: \xi[X_i]=1 \}$
     \State $w_0 \leftarrow |\mathcal D_0| / |\mathcal D|$, $w_1 \leftarrow |\mathcal   D_1| / |\mathcal D|$
     \State $\mathcal{C} \leftarrow
     w_0\cdot\mathsf{LearnCNet}(\mathcal D_0, \mathbf X_{\setminus i},
-    \alpha, \delta, \sigma) +$\par
-     $\quad\quad\quad\ \ \  w_1 \cdot\mathsf{LearnCNet}(\mathcal D_1, \mathbf X_{\setminus i}, \alpha, \delta, \sigma) $
+    \alpha, \delta, \sigma) + w_1 \cdot\mathsf{LearnCNet}(\mathcal D_1, \mathbf X_{\setminus i}, \alpha, \delta, \sigma) $
     % \Else 
     % \State $C \leftarrow \mathcal T$ 
-    \EndIf
+    %\EndIf
     \Else 
-    \State $\mathcal{C} \leftarrow \mathsf{learnDistribution}(\mathcal D, \mathbf X, \alpha)$
+    \State $\mathcal{C} \leftarrow \mathsf{learnLeafDistribution}(\mathcal D, \mathbf X, \alpha)$
     \EndIf
     \State \Return $\mathcal{C}$
   \end{algorithmic}
@@ -416,19 +436,19 @@ $O(n^2 (m + \log n))$
 \end{minipage}
 \end{center}
 \vspace{10pt}
-    $\mathsf{select}$ chooses one RV $X_{i}$ to condition on. Its cost
-    determines the complexity of the variants of $\mathsf{LearnCNet}$:
+    different \highlighttext[lacamlightlilac]{\textsf{select} implementations}
+    have different complexities:
     \vspace{10pt}
 
     \begin{center}
       \begin{minipage}{0.9\linewidth}
         \begin{description}[align=parright]
         \item[\textbf{\textsf{entCNet}}~\cite{Rahman2014}] choosing
-          $X_{i}$ to lower approximate average joint entropy\par
-          {\hfill $O(mn^2)$}
+          $X_{i}$ to lower approximate average joint entropy
+          {\hfill $\rightarrow\highlight[lacamlightlilac]{O(mn^2)}$}
         \item[\textbf{\textsf{dCSN}}~\cite{DiMauro2015a}] choosing
-          $X_{i}$ to improve model likelihood\par
-          {\hfill $O(n^3(m + \log n))$}
+          $X_{i}$ in a principled way improving likelihood
+          {\hfill $\rightarrow$ $\highlight[lacamlightlilac]{O(n^3(m + \log n))}$}
         \end{description}
       \end{minipage}
     \end{center}
@@ -451,19 +471,39 @@ $O(n^2 (m + \log n))$
 
   \begin{textblock}{17.5}(41, 7)
     \usebeamerfont{section name}
-    3. XCNets
+    5. XCNets
   \end{textblock}
   \begin{textblock}{17.5}(41, 8.7)
     \small
     \emph{\textbf{XCNets}} (\textbf{Extremely Randomized CNets}) are CNets built by \textsf{LearnCNet} when
     \textsf{select} chooses one RV \emph{completely at random}.\par
-    {\hfill$\rightarrow$ time complexity $O(1)$!}
-    \vspace{10pt}
+    {\hfill\textsf{select} time complexity $\rightarrow$ $\highlight[lacamlightlilac]{O(1)}$!}
+    \vspace{20pt}
+
+
+    {\bf 5.1 Mixture of Experts Interpretation}\par
+    A single CNet can be seen as a peculiar \emph{mixture of experts}: the OR
+    tree plays as a \emph{deterministic gating function} and leaf distributions
+    as \emph{local experts}.
+    A path $p=p_{(1)}p_{(2)}\cdots p_{(k)}$ connects the root to a
+    single leaf $\mathcal{M}_{l}$ after observing $x_{1} x_{2} \cdots  x_{k}$,
+     Equation~\ref{eq:cnetdistr}.
+
+$\mathsf{p}_l(\mathbf x_{|\mathsf{sc}(\mathcal C)\setminus
+  \mathsf{sc}(\mathcal M_l)})$ is decomposed by the chain rule across
+path $p$ .\par
+{\hfill$\rightarrow$ randomly shuffling
+  $X_{p_(0)},\dots,X_{p_{k}}$ does not influence inference!}
+
+\vspace{20pt}
+Therefore a single \textsf{XCNet} is only only slightly less accurate
+than a \textsf{CNet} and as good at generating samples.
+
     
-    XCNets are comparable or only slightly less accurate as density estimators that
-    CNets learned by $dCSN$ (see Exp 4.1)
-    and as good as sample generators.
-    \vspace{10pt}
+    % Other advantages of XCNets are comparable or only slightly less accurate as density estimators that
+    % CNets learned by $dCSN$ (see Exp 4.1)
+    % and as good as sample generators.
+    % \vspace{10pt}
 
     \begin{figure}[t]
   \centering
@@ -623,48 +663,13 @@ $O(n^2 (m + \log n))$
   \vspace{-20pt}
 \scriptsize  Samples obtained from a CNet (a), resp. XCNet (c), learned on 
    a binarized version of \texttt{MNIST}, and their nearest neighbor in training set (b), resp. (d).
-\end{minipage}
+ \end{minipage}
 
-  \end{textblock}
 
-  \begin{textblock}{17.5}(41, 22.5)
-    \usebeamerfont{section name}
-    7. Mixture of Experts
-  \end{textblock}
-  \begin{textblock}{17.5}(41, 24.2)
-    \small
-    A CNet can be seen as \emph{mixture of experts} in which the OR
-    tree plays as a \emph{deterministic gating
-function} and leaf distributions
-act as the \emph{local experts}.
-
-\begin{equation}
-\mathsf{p}(\mathbf{x}) = \mathsf{p}_l(\mathbf x_{|\mathsf{sc}(\mathcal C)\setminus \mathsf{sc}(\mathcal M_l)})\mathsf{p}_{\mathcal M_l}(\mathbf x_{| \mathsf{sc}(\mathcal M_l)}),
-\label{eq:cnetdistr}
-\end{equation}
-
-$\mathsf{p}_l(\mathbf x_{|\mathsf{sc}(\mathcal C)\setminus
-  \mathsf{sc}(\mathcal M_l)})$ is decomposed by the chain rule across
-a path $\mathsf{p}$ going from the root to leaf model
-$\mathcal{M}_{l}$.\par
-{\hfill$\rightarrow$the order of appearance of
-  $X_{\mathsf{p}(0)},\dots,X_{|\mathsf{p}|-1}$ does not change the
-  factorization!}
-
-% $g(\mathbf{\xi})=\sum_{p\in\mathcal{G}}\prod_{i=1}^{|p|}
-% \mathds{1}\{\xi[X_{p(i)}]=v_{i}\}\mathcal{M}_{p}$
-  \end{textblock}
-
-  \begin{textblock}{17.5}(41, 34)
-    \usebeamerfont{section name}
-    8. Regularization
-  \end{textblock}
-  \begin{textblock}{17.5}(41, 35.7)
-    \small
-    % \blindtext
-    As a single CNet can be seen as an ensemble,
-    randomizing the gating function acts as regularization and lessens
-    the overfitting issues with $\mathsf{LearnCNet}$
+ \vspace{20pt}
+ {\bf 5.2 Regularizing learning}\par
+Single CNets learned with $\mathsf{LearnCNet}$ are prone to overfitting, randomization in
+ \textsf{XCNets} alleviate this issue
     
 \begin{figure}[t]
   %\caption{Negative log-likelihood during learning CNets and XCNets.}
@@ -683,18 +688,99 @@ $\mathcal{M}_{l}$.\par
 log-likelihoods) on $\mathsf{KddCup2k}$ and $\mathsf{EachMovie}$
 The latter overfits much later that the former.
 \end{minipage}
+
+
+
+\vspace{20pt}
+{\bf 5.3 Ensembles} of XCNets do not require to additionally
+diversify components and learning up to 500 components is still faster
+than learning 40 of other variants:
+
+\vspace{10pt}
+
+    \begin{center}
+      \begin{minipage}{0.9\linewidth}
+        \begin{description}[align=parright]
+        \item[\textbf{\textsf{CNet}}$_{\mathsf{bag}}$]
+          bagging \textsf{entCSN}~\cite{Rahman2016a}\par
+          %{\hfill $\rightarrow$ $O(mn^2)$}
+        \item[\textbf{\textsf{CNet}}$_{\mathsf{boost}}$]
+          boosting \textsf{entCSN}~\cite{Rahman2016a}\par
+        \item[\textbf{\textsf{dCSN}}$^{k}$]
+          bagging \textsf{dCSN}~\cite{DiMauro2015a,DiMauro2015b}\par
+        \end{description}
+      \end{minipage}
+    \end{center}
+
   \end{textblock}
+%   \begin{textblock}{17.5}(41, 22.5)
+%     \usebeamerfont{section name}
+%     7. Mixture of Experts
+%   \end{textblock}
+%   \begin{textblock}{17.5}(41, 24.2)
+%     \small
+%     A CNet can be seen as \emph{mixture of experts} in which the OR
+%     tree plays as a \emph{deterministic gating
+% function} and leaf distributions
+% act as the \emph{local experts}.
+
+% % \begin{equation}
+% % \mathsf{p}(\mathbf{x}) = \mathsf{p}_l(\mathbf x_{|\mathsf{sc}(\mathcal C)\setminus \mathsf{sc}(\mathcal M_l)})\mathsf{p}_{\mathcal M_l}(\mathbf x_{| \mathsf{sc}(\mathcal M_l)}),
+% % \label{eq:cnetdistr}
+% % \end{equation}
+
+% $\mathsf{p}_l(\mathbf x_{|\mathsf{sc}(\mathcal C)\setminus
+%   \mathsf{sc}(\mathcal M_l)})$ is decomposed by the chain rule across
+% a path $\mathsf{p}$ going from the root to leaf model
+% $\mathcal{M}_{l}$.\par
+% {\hfill$\rightarrow$the order of appearance of
+%   $X_{\mathsf{p}(0)},\dots,X_{|\mathsf{p}|-1}$ does not change the
+%   factorization!}
+
+% % $g(\mathbf{\xi})=\sum_{p\in\mathcal{G}}\prod_{i=1}^{|p|}
+% % \mathds{1}\{\xi[X_{p(i)}]=v_{i}\}\mathcal{M}_{p}$
+%   \end{textblock}
+
+%   \begin{textblock}{17.5}(41, 34)
+%     \usebeamerfont{section name}
+%     8. Regularization
+%   \end{textblock}
+%   \begin{textblock}{17.5}(41, 35.7)
+%     \small
+%     % \blindtext
+%     As a single CNet can be seen as an ensemble,
+%     randomizing the gating function acts as regularization and lessens
+%     the overfitting issues with $\mathsf{LearnCNet}$
+    
+% \begin{figure}[t]
+%   %\caption{Negative log-likelihood during learning CNets and XCNets.}
+%   \label{fig:ll}
+%   \centering
+%   \begin{tabular}{ccc}
+%     \includegraphics[width=0.48\linewidth]{figures/kdd} &
+%     %\includegraphics[width=0.33\linewidth]{figures/msweb} &
+%     \includegraphics[width=0.48\linewidth]{figures/tmovie}
+%   \end{tabular}
+% \end{figure}
+% \hspace{50pt}
+% \begin{minipage}{0.8\linewidth}
+%   \vspace{-10pt}
+% \scriptsize  Learning curves of CNets and XCNets (negative
+% log-likelihoods) on $\mathsf{KddCup2k}$ and $\mathsf{EachMovie}$
+% The latter overfits much later that the former.
+% \end{minipage}
+%   \end{textblock}
 
 
   %
   % column 4
   \begin{textblock}{17.5}(61.5, 7)
     \usebeamerfont{section name}
-    4. Experiments
+    6. Experiments
   \end{textblock}
   \begin{textblock}{17.5}(61.5, 8.7)
 
-    {\bf 4.1 Single model comparisons}
+    {\bf 6.1 Single model comparisons}
     \small single XCNets are comparable (same order of magnitude) to
     \textsf{entCNet} and \textsf{dCSN}.
 \vspace{10pt}
@@ -748,9 +834,9 @@ The latter overfits much later that the former.
 \end{minipage}
 
 \vspace{10pt}
-{\bf 4.2 Ensemble model comparisons}
+{\bf 6.2 Ensemble model comparisons}
 \small ensembles of XCNets set new state-of-the-art log-likelihoods
-for the 20 standard benchmark datasets for density estimation.
+for the 20 standard benchmark datasets for density estimation\dots
 \vspace{-10pt}
 \begin{table}[t]
 
@@ -802,19 +888,19 @@ for the 20 standard benchmark datasets for density estimation.
 \end{minipage}
 
 \vspace{15pt}
-{\bf 4.3 Learning time comparison} \dots in a fraction of the time
+{\bf 6.3 Learning time comparison} \dots in a fraction of the time
 other competitor need
 \vspace{-10pt}
 \begin{table}[t]
   \centering
-  \setlength{\tabcolsep}{3pt}  
+  \setlength{\tabcolsep}{1pt}  
 \tiny
   \begin{tabular}{l rrr r r r r r r}
     % \toprule
     dataset           & \textsf{dCSN} & \textsf{XCNet} & $\mathsf{dCSN_{PoB}}$ &
     $\mathsf{XCNet_{PoB}}$ &\textsf{dCSN$^{\mathsf{40}}$} & \textsf{XCNet$^{\mathsf{40}}_\mathsf{PoB}$}& \textsf{XCNet$^{\mathsf{40}}$} & \textsf{XCNet$^{\mathsf{500}}$} & \textsf{ID-SPN}\\
     \midrule
-    \texttt{NLTCS}& 0&0.2&0.1	&0.01&10&0.2& 0 & 3 &310\\ 
+    \texttt{NLTCS}& 0&0.2&0.1	&0.01&10&0.2& 0.01 & 3 &310\\ 
     \texttt{MSNBC} & 12&0.3&0.7&	0.01&499&13.1& 13 & 155 &46266\\ 
     \texttt{KDDCup2k}&112&0.5&12.0&0.32&4126&21.2& 16& 247 &32067\\ 
     \texttt{Plants}&15&0.3&45.5	&0.22&325&1.0& 6 & 77 &18833\\ 
